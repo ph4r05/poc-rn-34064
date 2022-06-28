@@ -1,10 +1,13 @@
+require_relative '../node_modules/expo/scripts/autolinking'
 require_relative '../node_modules/react-native/scripts/react_native_pods'
 require_relative '../node_modules/@react-native-community/cli-platform-ios/native_modules'
 
-platform :ios, '13.0'
+platform :ios, '15.2'
 install! 'cocoapods', :deterministic_uuids => false
+flipperkit_version = '0.151.0'
 
 target 'rnPoc' do
+  use_expo_modules!
   config = use_native_modules!
 
   # Flags change depending on the env values.
@@ -28,10 +31,26 @@ target 'rnPoc' do
   #
   # Note that if you have use_frameworks! enabled, Flipper will not work and
   # you should disable the next line.
-  use_flipper!()
+  use_flipper!(
+    {
+      'Flipper' => flipperkit_version,
+      'Flipper-Folly' => '2.6.10',
+      'Flipper-RSocket' => '1.4.3',
+      'Flipper-DoubleConversion' => '1.1.7',
+    },
+  )
+
+  post_integrate do |installer|
+      begin
+        expo_patch_react_imports!(installer)
+      rescue => e
+        Pod::UI.warn e
+      end
+    end
 
   post_install do |installer|
     react_native_post_install(installer)
+    flipper_post_install(installer)
     __apply_Xcode_12_5_M1_post_install_workaround(installer)
   end
 end
