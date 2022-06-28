@@ -6,6 +6,7 @@ Build:
 ```bash
 yarn install
 npx pod-install
+npx react-native run-ios  # or build with XCode
 ```
 
 ## How to recreate this repo
